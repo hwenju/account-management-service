@@ -5,6 +5,7 @@ import com.mybank.account.dto.request.TransferRequest;
 import com.mybank.account.dto.request.UpdateAccountRequest;
 import com.mybank.account.dto.response.AccountResponse;
 import com.mybank.account.entity.BankAccount;
+import com.mybank.account.exception.BankException;
 import com.mybank.account.service.AccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,11 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 
 /**
- * bank account RESTFul controller
+ * RESTful controller for bank account management operations.
+ * Provides endpoints for CRUD operations, fund transfers, and account transactions.
+ * 
+ * @author Bank Account Service
+ * @version 1.0
  */
 @RestController
 @RequestMapping("/v1/accounts")
@@ -32,8 +37,12 @@ public class AccountController {
 
     private final AccountService accountService;
     /**
-     * create bank account
-     * API: POST /v1/accounts
+     * Creates a new bank account with the provided account details.
+     * Validates account number uniqueness and initializes account with specified balance.
+     * 
+     * @param request the account creation request containing holder details and initial balance
+     * @return AccountResponse containing the created account information
+     * @throws BankException if account number already exists or validation fails
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -44,9 +53,14 @@ public class AccountController {
     }
 
     /**
-     * get all accounts by page
-     *
-     * API: GET /v1/accounts?page=0&size=20&sort=createdAt,desc
+     * Retrieves all bank accounts with pagination support.
+     * Supports sorting by various fields and customizable page size.
+     * 
+     * @param page the page number (0-based)
+     * @param size the number of accounts per page
+     * @param sort the field to sort by (default: createdAt)
+     * @param direction the sort direction - asc or desc (default: desc)
+     * @return Page<AccountResponse> containing paginated account list
      */
     @GetMapping
     public Page<AccountResponse> getAllAccounts(
@@ -66,8 +80,11 @@ public class AccountController {
     }
 
     /**
-     * query account detail by number
-     * API: GET /v1/accounts/{accountNumber}
+     * Retrieves detailed information for a specific account by account number.
+     * 
+     * @param accountNumber the unique account number to query
+     * @return AccountResponse containing complete account details
+     * @throws BankException if account is not found
      */
     @GetMapping("/{accountNumber}")
     public AccountResponse getAccount(@PathVariable String accountNumber) {
@@ -88,8 +105,13 @@ public class AccountController {
 //    }
 
     /**
-     * update bank account
-     * API: PUT /v1/accounts/{accountNumber}
+     * Updates account details for an existing account.
+     * Only non-null fields in the request will be updated.
+     * 
+     * @param accountNumber the account number to update
+     * @param request the update request containing new account details
+     * @return AccountResponse containing the updated account information
+     * @throws BankException if account is not found or validation fails
      */
     @PutMapping("/{accountNumber}")
     public AccountResponse updateAccount(@PathVariable String accountNumber,
@@ -100,8 +122,11 @@ public class AccountController {
     }
 
     /**
-     * delete account
-     * API: DELETE /v1/accounts/{accountNumber}
+     * Deletes an existing bank account.
+     * Account can only be deleted if the balance is zero.
+     * 
+     * @param accountNumber the account number to delete
+     * @throws BankException if account is not found or has non-zero balance
      */
     @DeleteMapping("/{accountNumber}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -111,8 +136,11 @@ public class AccountController {
     }
 
     /**
-     * transfer funds
-     * API: POST /v1/accounts/transfer
+     * Transfers funds between two bank accounts.
+     * Ensures thread safety with pessimistic locking and deadlock prevention.
+     * 
+     * @param request the transfer request containing source, destination, and amount
+     * @throws BankException if accounts don't exist, insufficient funds, or same account transfer
      */
     @PostMapping("/transfer")
     public ResponseEntity<Void> transferFunds(@Valid @RequestBody TransferRequest request) {
@@ -124,8 +152,12 @@ public class AccountController {
     }
 
     /**
-     * account deposit
-     * API: POST /v1/accounts/{accountNumber}/deposit
+     * Deposits money into the specified account.
+     * 
+     * @param accountNumber the target account number
+     * @param amount the amount to deposit (must be positive)
+     * @return AccountResponse containing updated account details
+     * @throws BankException if account is not found or amount is invalid
      */
     @PostMapping("/{accountNumber}/deposit")
     public AccountResponse deposit(@PathVariable String accountNumber,
@@ -136,8 +168,12 @@ public class AccountController {
     }
 
     /**
-     * account withdraw
-     * API: POST /v1/accounts/{accountNumber}/withdraw
+     * Withdraws money from the specified account.
+     * 
+     * @param accountNumber the source account number
+     * @param amount the amount to withdraw (must be positive and not exceed balance)
+     * @return AccountResponse containing updated account details
+     * @throws BankException if account is not found, insufficient funds, or amount is invalid
      */
     @PostMapping("/{accountNumber}/withdraw")
     public AccountResponse withdraw(@PathVariable String accountNumber,
@@ -148,8 +184,10 @@ public class AccountController {
     }
 
     /**
-     * health check endpoint
-     * API: GET /v1/accounts/health
+     * Health check endpoint for service monitoring.
+     * Used by load balancers and container orchestrators to verify service availability.
+     * 
+     * @return ResponseEntity with service status message
      */
     @GetMapping("/health")
     public ResponseEntity<String> health() {

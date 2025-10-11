@@ -20,7 +20,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 
 /**
- * bank account service layer
+ * Service layer for bank account business logic and operations.
+ * Handles account CRUD operations, fund transfers, and transaction management
+ * with proper concurrency control and caching support.
+ * 
+ * @author Bank Account Service
+ * @version 1.0
  */
 @Service
 @RequiredArgsConstructor
@@ -30,7 +35,12 @@ public class AccountService {
     private final AccountRepository accountRepository;
 
     /**
-     * createAccount
+     * Creates a new bank account with the provided details.
+     * Validates account number uniqueness and initializes account balance.
+     * 
+     * @param request the account creation request
+     * @return the created BankAccount entity
+     * @throws BankException if account number already exists
      */
     @Transactional
     @CacheEvict(value = {"account", "account-pages"}, allEntries = true)
@@ -57,7 +67,11 @@ public class AccountService {
     }
 
     /**
-     * query all accounts by page
+     * Retrieves all accounts with pagination support.
+     * Results are cached for improved performance.
+     * 
+     * @param pageable pagination and sorting parameters
+     * @return Page<BankAccount> containing paginated account list
      */
     @Transactional(readOnly = true)
     @Cacheable(value = "account-pages", key = "#pageable.pageNumber + '-' + #pageable.pageSize")
@@ -68,7 +82,12 @@ public class AccountService {
     }
 
     /**
-     * query account detail by number
+     * Retrieves account details by account number.
+     * Uses caching for improved performance.
+     * 
+     * @param accountNumber the unique account number
+     * @return BankAccount entity with account details
+     * @throws BankException if account is not found
      */
     @Transactional(readOnly = true)
     @Cacheable(value = "account", key = "#accountNumber", unless = "#result == null")
@@ -139,7 +158,12 @@ public class AccountService {
     }
 
     /**
-     * core function: transfer
+     * Transfers funds between two accounts with concurrency safety.
+     * Uses pessimistic locking and deadlock prevention strategies.
+     * Implements proper isolation level and transaction timeout.
+     * 
+     * @param request the transfer request containing source, destination, and amount
+     * @throws BankException if accounts don't exist, insufficient funds, or validation fails
      */
     @Transactional(isolation = Isolation.READ_COMMITTED, timeout = 10)
     @CacheEvict(value = {"account", "account-pages"}, allEntries = true)
@@ -174,7 +198,11 @@ public class AccountService {
     }
 
     /**
-     * verify transfer request
+     * Validates transfer request parameters.
+     * Ensures different source and destination accounts and positive amount.
+     * 
+     * @param request the transfer request to validate
+     * @throws BankException if validation fails
      */
     private void validateTransferRequest(TransferRequest request) {
         if (request.getFromAccountNumber().equals(request.getToAccountNumber())) {
@@ -187,7 +215,12 @@ public class AccountService {
     }
 
     /**
-     * query and lock account
+     * Finds and locks an account by account number for concurrent operations.
+     * Uses pessimistic locking to prevent concurrent modifications.
+     * 
+     * @param accountNumber the account number to find and lock
+     * @return BankAccount entity with pessimistic lock
+     * @throws BankException if account is not found
      */
     private BankAccount findAndLockAccountByNumber(String accountNumber) {
         return accountRepository.findByAccountNumberWithLock(accountNumber)
@@ -195,7 +228,13 @@ public class AccountService {
     }
 
     /**
-     * execute actual transfer
+     * Executes the actual fund transfer between two accounts.
+     * Validates sufficient balance and performs atomic debit/credit operations.
+     * 
+     * @param fromBankAccount the source account (will be debited)
+     * @param toBankAccount the destination account (will be credited)
+     * @param amount the transfer amount
+     * @throws BankException if insufficient balance in source account
      */
     private void executeTransfer(BankAccount fromBankAccount, BankAccount toBankAccount, BigDecimal amount) {
         // verify balance
@@ -214,7 +253,13 @@ public class AccountService {
     }
 
     /**
-     * account deposit
+     * Deposits money into the specified account.
+     * Uses pessimistic locking for thread safety.
+     * 
+     * @param accountNumber the target account number
+     * @param amount the amount to deposit (must be positive)
+     * @return BankAccount entity with updated balance
+     * @throws BankException if account is not found or amount is invalid
      */
     @Transactional
     @CacheEvict(value = {"account", "account-pages"}, key = "#accountNumber")
@@ -232,7 +277,13 @@ public class AccountService {
     }
 
     /**
-     * account withdraw
+     * Withdraws money from the specified account.
+     * Uses pessimistic locking for thread safety and validates sufficient balance.
+     * 
+     * @param accountNumber the source account number
+     * @param amount the amount to withdraw (must be positive and not exceed balance)
+     * @return BankAccount entity with updated balance
+     * @throws BankException if account is not found, insufficient funds, or amount is invalid
      */
     @Transactional
     @CacheEvict(value = {"account", "account-pages"}, key = "#accountNumber")

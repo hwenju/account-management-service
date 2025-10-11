@@ -15,7 +15,12 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * the bank account entity
+ * Bank account entity representing a customer's bank account.
+ * Contains account information, balance, and business operations for deposits and withdrawals.
+ * Implements optimistic locking for concurrent access control.
+ * 
+ * @author Bank Account Service
+ * @version 1.0
  */
 @Entity
 @Table(name = "bank_account",
@@ -61,7 +66,11 @@ public class BankAccount {
     private Long version;
 
     /**
-     * deposit basic operation in the entity
+     * Deposits money into this account.
+     * Validates amount and updates account balance.
+     * 
+     * @param amount the amount to deposit (must be positive)
+     * @throws IllegalArgumentException if amount is null or not positive
      */
     public void deposit(BigDecimal amount) {
         validateAmount(amount);
@@ -69,7 +78,12 @@ public class BankAccount {
     }
 
     /**
-     * withdraw basic operation in the entity
+     * Withdraws money from this account.
+     * Validates amount and checks sufficient balance before withdrawal.
+     * 
+     * @param amount the amount to withdraw (must be positive and not exceed balance)
+     * @throws IllegalArgumentException if amount is null or not positive
+     * @throws BankException if insufficient balance for withdrawal
      */
     public void withdraw(BigDecimal amount) {
         validateAmount(amount);
@@ -81,7 +95,10 @@ public class BankAccount {
     }
 
     /**
-     * validate amount
+     * Validates that the amount is positive.
+     * 
+     * @param amount the amount to validate
+     * @throws IllegalArgumentException if amount is null or not positive
      */
     private void validateAmount(BigDecimal amount) {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
