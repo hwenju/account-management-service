@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Bank Account Management System - Test Page</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background: #f5f5f5; 
+            font-size: 14px;
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+        }
+        h1 { 
+            color: #0056b3; 
+            text-align: center; 
+        }
+        h3 { 
+            margin-top: 0; 
+            color: #333; 
+        }
+        h4 {
+            margin: 10px 0 5px;
+            color: #555;
+        }
+        .section { 
+            margin-bottom: 30px; 
+            padding: 20px; 
+            border: 1px solid #ddd; 
+            border-radius: 5px; 
+        }
+        .section-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); 
+            gap: 20px; 
+        }
+        input, button, select { 
+            padding: 8px; 
+            margin: 5px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+        }
+        button { 
+            background: #0056b3; 
+            color: white; 
+            border: none; 
+            cursor: pointer; 
+            font-weight: bold; 
+            margin-top: 10px;
+        }
+        button:hover { 
+            background: #003d82; 
+        }
+        .delete-btn {
+            background: #dc3545;
+        }
+        .delete-btn:hover {
+            background: #bd2130;
+        }
+        .result { 
+            margin-top: 15px; 
+            padding: 15px; 
+            background: #e9f7ef; 
+            border-left: 4px solid #28a745; 
+        }
+        .error { 
+            background: #f8d7da; 
+            border-left: 4px solid #dc3545; 
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 10px;
+            table-layout: fixed;
+        }
+        th, td { 
+            border: 1px solid #ddd; 
+            padding: 8px; 
+            text-align: left; 
+            word-wrap: break-word;
+        }
+        th { 
+            background-color: #f2f2f2; 
+            font-weight: bold; 
+        }
+        tr:nth-child(even) { 
+            background-color: #f9f9f9; 
+        }
+        tr:hover { 
+            background-color: #f5f5f5; 
+        }
+        .hidden { 
+            display: none; 
+        }
+        .form-group { 
+            margin-bottom: 10px; 
+        }
+        label { 
+            display: inline-block; 
+            width: 140px; 
+            font-weight: bold; 
+        }
+        .scrollable-table {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        .account-details-table th, .account-details-table td {
+            width: 50%;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🏦 Bank Account Management System - Test Page</h1>
+
+    <div class="section-grid">
+        <!-- Create Account -->
+        <div class="section">
+            <h3>1. Create Account</h3>
+            <div class="form-group">
+                <label for="holderName">Holder Name:</label>
+                <input type="text" id="holderName" placeholder="Account Holder Name" />
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" placeholder="Email" />
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone:</label>
+                <input type="tel" id="phone" placeholder="Phone" />
+            </div>
+            <div class="form-group">
+                <label for="accountNumberCreate">Account Number:</label>
+                <input type="text" id="accountNumberCreate" placeholder="Account Number" />
+            </div>
+            <button onclick="createAccount()">Create Account</button>
+            <div id="createResult" class="hidden"></div>
+        </div>
+
+        <!-- Delete Account -->
+        <div class="section">
+            <h3>2. Delete Account</h3>
+            <div class="form-group">
+                <label for="accountNumberDelete">Account Number:</label>
+                <input type="text" id="accountNumberDelete" placeholder="Account Number" />
+            </div>
+            <button onclick="deleteAccount()" class="delete-btn">Delete Account</button>
+            <div id="deleteResult" class="hidden"></div>
+        </div>
+
+        <!-- Update Account -->
+        <div class="section">
+            <h3>3. Update Account</h3>
+            <div class="form-group">
+                <label for="accountNumberUpdate">Account Number:</label>
+                <input type="text" id="accountNumberUpdate" placeholder="Account Number" />
+            </div>
+            <div class="form-group">
+                <label for="updateHolderName">Holder Name:</label>
+                <input type="text" id="updateHolderName" placeholder="New Holder Name" />
+            </div>
+            <div class="form-group">
+                <label for="updateEmail">Email:</label>
+                <input type="email" id="updateEmail" placeholder="New Email" />
+            </div>
+            <div class="form-group">
+                <label for="updatePhone">Phone:</label>
+                <input type="tel" id="updatePhone" placeholder="New Phone" />
+            </div>
+            <button onclick="updateAccount()">Update Account</button>
+            <div id="updateResult" class="hidden"></div>
+        </div>
+
+        <!-- Get All Accounts -->
+        <div class="section">
+            <h3>4. Get All Accounts (Pagination)</h3>
+            <div class="form-group">
+                <label for="page">Page:</label>
+                <input type="number" id="page" value="0" min="0" style="width:60px;" />
+                <label for="size" style="margin-left: 20px;">Size:</label>
+                <input type="number" id="size" value="10" min="1" style="width:60px;" />
+            </div>
+            <button onclick="getAllAccounts()">Get All</button>
+            <div id="listResult" class="hidden"></div>
+        </div>
+
+        <!-- Get Single Account -->
+        <div class="section">
+            <h3>5. Get Account Details</h3>
+            <div class="form-group">
+                <label for="accountNumberQuery">Account Number:</label>
+                <input type="text" id="accountNumberQuery" placeholder="Enter Account Number" />
+            </div>
+            <button onclick="getAccount()">Query</button>
+            <div id="accountResult" class="hidden"></div>
+        </div>
+
+        <!-- Transfer -->
+        <div class="section">
+            <h3>6. Transfer</h3>
+            <div class="form-group">
+                <label for="fromAccount">From Account:</label>
+                <input type="text" id="fromAccount" placeholder="From Account" />
+            </div>
+            <div class="form-group">
+                <label for="toAccount">To Account:</label>
+                <input type="text" id="toAccount" placeholder="To Account" />
+            </div>
+            <div class="form-group">
+                <label for="transferAmount">Amount:</label>
+                <input type="number" id="transferAmount" placeholder="Transfer Amount" step="0.01" />
+            </div>
+            <button onclick="transfer()">Transfer</button>
+            <div id="transferResult" class="hidden"></div>
+        </div>
+
+        <!-- Withdraw -->
+        <div class="section">
+            <h3>7. Withdraw</h3>
+            <div class="form-group">
+                <label for="withdrawAccount">Account Number:</label>
+                <input type="text" id="withdrawAccount" placeholder="Account Number" />
+            </div>
+            <div class="form-group">
+                <label for="withdrawAmount">Amount:</label>
+                <input type="number" id="withdrawAmount" placeholder="Amount" step="0.01" />
+            </div>
+            <button onclick="withdraw()">Withdraw</button>
+            <div id="withdrawResult" class="hidden"></div>
+        </div>
+
+        <!-- Deposit -->
+        <div class="section">
+            <h3>8. Deposit</h3>
+            <div class="form-group">
+                <label for="depositAccount">Account Number:</label>
+                <input type="text" id="depositAccount" placeholder="Account Number" />
+            </div>
+            <div class="form-group">
+                <label for="depositAmount">Amount:</label>
+                <input type="number" id="depositAmount" placeholder="Amount" step="0.01" />
+            </div>
+            <button onclick="deposit()">Deposit</button>
+            <div id="depositResult" class="hidden"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_BASE = '/v1/accounts';
+
+    // Utility function to format date
+    function formatDate(dateString) {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toLocaleString();
+    }
+
+    // Utility function to format value (handle 0 and null values correctly)
+    function formatValue(value) {
+        if (value === null || value === undefined) {
+            return '';
+        }
+        return String(value);
+    }
+
+    // Utility function to create a key-value table
+    function createKeyValueTable(data, container) {
+        // Remove internal fields that are not useful for users
+        const filteredData = {};
+        for (const [key, value] of Object.entries(data)) {
+            if (key !== 'id' && key !== 'version') {
+                filteredData[key] = value;
+            }
+        }
+        
+        container.innerHTML = `
+            <h4>Response:</h4>
+            <div class="scrollable-table">
+                <table class="account-details-table">
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${Object.entries(filteredData).map(([key, value]) => {
+                            // Format field names for better readability
+                            const fieldName = key
+                                .replace(/([A-Z])/g, ' $1')
+                                .replace(/^./, str => str.toUpperCase());
+                            const formattedValue = (key.includes('At') || key.includes('Date')) ? formatDate(value) : formatValue(value);
+                            return `
+                                <tr>
+                                    <td><strong>${fieldName}</strong></td>
+                                    <td>${formattedValue}</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    // Utility function to create accounts table
+    function createAccountsTable(data, container) {
+        if (!data.content || data.content.length === 0) {
+            container.innerHTML = '<div class="result">No accounts found</div>';
+            return;
+        }
+
+        // Sort accounts by account number
+        const sortedAccounts = [...data.content].sort((a, b) => 
+            a.accountNumber.localeCompare(b.accountNumber));
+
+        container.innerHTML = `
+            <h4>Accounts List:</h4>
+            <div class="scrollable-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Account Number</th>
+                            <th>Holder Name</th>
+                            <th>Balance</th>
+                            <th>Created At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${sortedAccounts.map(account => `
+                            <tr>
+                                <td>${formatValue(account.accountNumber)}</td>
+                                <td>${formatValue(account.accountHolderName)}</td>
+                                <td>${formatValue(account.balance)}</td>
+                                <td>${formatDate(account.createdAt)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    // Utility function: send request and display result
+    async function callApi(method, url, body = null, resultContainerId, displayType = 'keyvalue') {
+        const resultContainer = document.getElementById(resultContainerId);
+        
+        try {
+            const options = {
+                method,
+                headers: { 'Content-Type': 'application/json' }
+            };
+            if (body) options.body = JSON.stringify(body);
+
+            const response = await fetch(url, options);
+            let data = {};
+            const contentType = response.headers.get('content-type');
+            
+            if (contentType && contentType.includes('application/json')) {
+                data = await response.json();
+            } else {
+                data = { status: response.status, statusText: response.statusText };
+            }
+            
+            if (response.ok) {
+                resultContainer.classList.remove('hidden');
+                
+                if (resultContainerId === 'listResult') {
+                    createAccountsTable(data, resultContainer);
+                } else if (displayType === 'keyvalue') {
+                    createKeyValueTable(data, resultContainer);
+                } else if (displayType === 'message') {
+                    if (method === 'DELETE') {
+                        resultContainer.innerHTML = '<div class="result">Account deleted successfully</div>';
+                    } else {
+                        resultContainer.innerHTML = '<div class="result">Operation completed successfully</div>';
+                    }
+                }
+            } else {
+                resultContainer.classList.remove('hidden');
+                resultContainer.innerHTML = `<div class="error">Error ${response.status}: ${data.message || response.statusText}</div>`;
+            }
+        } catch (error) {
+            resultContainer.classList.remove('hidden');
+            resultContainer.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+        }
+    }
+
+    // API Functions
+    function createAccount() {
+        const req = {
+            accountHolderName: document.getElementById('holderName').value,
+            email: document.getElementById('email').value,
+            phone: document.getElementById('phone').value,
+            accountNumber: document.getElementById('accountNumberCreate').value
+        };
+        callApi('POST', API_BASE, req, 'createResult');
+    }
+
+    function deleteAccount() {
+        const accNum = document.getElementById('accountNumberDelete').value;
+        if (!accNum) {
+            alert('Please enter an account number');
+            return;
+        }
+        
+        if (!confirm(`Are you sure you want to delete account ${accNum}?`)) {
+            return;
+        }
+        
+        callApi('DELETE', `${API_BASE}/${accNum}`, null, 'deleteResult', 'message');
+    }
+
+    function updateAccount() {
+        const accNum = document.getElementById('accountNumberUpdate').value;
+        if (!accNum) {
+            alert('Please enter an account number');
+            return;
+        }
+        
+        const req = {};
+        const holderName = document.getElementById('updateHolderName').value;
+        const email = document.getElementById('updateEmail').value;
+        const phone = document.getElementById('updatePhone').value;
+        
+        if (holderName) req.accountHolderName = holderName;
+        if (email) req.email = email;
+        if (phone) req.phone = phone;
+        
+        if (Object.keys(req).length === 0) {
+            alert('Please enter at least one field to update');
+            return;
+        }
+        
+        callApi('PUT', `${API_BASE}/${accNum}`, req, 'updateResult');
+    }
+
+    function getAllAccounts() {
+        const page = document.getElementById('page').value;
+        const size = document.getElementById('size').value;
+        const url = `${API_BASE}?page=${page}&size=${size}&sort=accountNumber&direction=asc`;
+        callApi('GET', url, null, 'listResult');
+    }
+
+    function getAccount() {
+        const accNum = document.getElementById('accountNumberQuery').value;
+        if (!accNum) {
+            alert('Please enter an account number');
+            return;
+        }
+        callApi('GET', `${API_BASE}/${accNum}`, null, 'accountResult');
+    }
+
+    function transfer() {
+        const fromAcc = document.getElementById('fromAccount').value;
+        const toAcc = document.getElementById('toAccount').value;
+        const amount = document.getElementById('transferAmount').value;
+        
+        if (!fromAcc || !toAcc || !amount) {
+            alert('Please enter all transfer details');
+            return;
+        }
+        
+        const req = {
+            fromAccountNumber: fromAcc,
+            toAccountNumber: toAcc,
+            amount: parseFloat(amount)
+        };
+        callApi('POST', `${API_BASE}/transfer`, req, 'transferResult', 'message');
+    }
+
+    function withdraw() {
+        const accNum = document.getElementById('withdrawAccount').value;
+        const amount = document.getElementById('withdrawAmount').value;
+        if (!accNum || !amount) {
+            alert('Please enter both account number and amount');
+            return;
+        }
+        const url = `${API_BASE}/${accNum}/withdraw?amount=${amount}`;
+        callApi('POST', url, null, 'withdrawResult');
+    }
+
+    function deposit() {
+        const accNum = document.getElementById('depositAccount').value;
+        const amount = document.getElementById('depositAmount').value;
+        if (!accNum || !amount) {
+            alert('Please enter both account number and amount');
+            return;
+        }
+        const url = `${API_BASE}/${accNum}/deposit?amount=${amount}`;
+        callApi('POST', url, null, 'depositResult');
+    }
+</script>
+</body>
+</html>
