@@ -1,5 +1,5 @@
 # Multi-stage build for optimal image size
-FROM maven:3.8.6-openjdk-17 AS builder
+FROM maven:3.8.6-eclipse-temurin-17 AS builder
 # Set working directory
 WORKDIR /app
 # Copy pom.xml first for better layer caching
@@ -12,15 +12,13 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Runtime stage
-FROM openjdk:17-jre-slim
+FROM eclipse-temurin:17-jre
 # Create non-root user for security
-RUN addgroup --system --gid 1000 appgroup && \
-    adduser --system --uid 1000 --group appuser
+RUN groupadd -r -g 1001 appgroup && \
+    useradd -r -u 1001 -g appgroup appuser
 WORKDIR /app
 # Copy JAR file from builder stage
-COPY --from=builder /app/target/*.jar app.jar
-# Change ownership to non-root user
-RUN chown appuser:appgroup app.jar
+COPY --from=builder --chown=appuser:appgroup /app/target/*.jar app.jar
 # Switch to non-root user
 USER appuser:appgroup
 # Expose port

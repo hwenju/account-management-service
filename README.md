@@ -2,22 +2,16 @@
 
 A RESTful banking service built with Java 17 and Spring Boot for managing bank accounts with comprehensive features including account operations, fund transfers, and data management.
 
-## Core Features
-
-### Account Management
+## Core Function
 - Create bank accounts with holder information
-- Delete bank accounts (requires zero balance)
+- Delete bank accounts
 - Update account details (holder name, email, phone)
 - List all accounts with pagination support
 - View specific account details
+- transfer funds between accounts
 
-### Financial Operations
-- Transfer funds between accounts with concurrency safety
-- Deposit money to accounts
-- Withdraw money from accounts
+## Features
 - Balance validation and insufficient fund protection
-
-### Data & Performance
 - H2 in-memory database for development
 - Caching for improved performance
 - Comprehensive input validation
@@ -62,16 +56,14 @@ A RESTful banking service built with Java 17 and Spring Boot for managing bank a
 # Run the JAR
 java -jar target/bankAccount-management-service-0.0.1-SNAPSHOT.jar
 
-# Run with sample data
+# Run with sample data (insert some data to test)
 java -jar target/bankAccount-management-service-0.0.1-SNAPSHOT.jar --spring.profiles.active=dev
 ```
 
 #### Option 3: Using Docker
 ```bash
-# Build the project first
-./mvnw clean package
 
-# Build Docker image
+# Build Docker image  packaged the jar in container
 docker build -t bank-account-service .
 
 # Run container
@@ -108,74 +100,52 @@ docker run -p 8080:8080 -e SPRING_PROFILES_ACTIVE=dev bank-account-service
 ### Manual Testing
 
 #### Option 1: Web Interface
+I make a simple html to test the api
 1. Start the application
 2. Open http://localhost:8080/index.html in your browser
 3. Use the web interface to test all API endpoints
-
-#### Option 2: PowerShell/Command Line Testing
+![img.png](img.png)
+#### Option 2: Command Line Testing(or postman)
+I test in my windows using cmd
 
 **Create Account:**
-```powershell
-curl -X POST http://localhost:8080/v1/accounts `
-  -H "Content-Type: application/json" `
-  -d '{
-    "accountNumber": "ACC001",
-    "accountHolderName": "John Doe",
-    "email": "john@example.com",
-    "phone": "1234567890",
-    "initialBalance": 1000.00
-  }'
+```cmd
+curl -X POST http://localhost:8080/v1/accounts -H "Content-Type: application/json; charset=utf-8" -d "{\"accountNumber\": \"ACC001\", \"accountHolderName\": \"John Doe\", \"email\": \"john@example.com\", \"phone\": \"1234567890\", \"initialBalance\": 1000.00}"
+```
+
+**Delete Account:**
+```cmd
+curl -X DELETE http://localhost:8080/v1/accounts/ACC001
 ```
 
 **Get All Accounts:**
-```powershell
-curl http://localhost:8080/v1/accounts?page=0&size=10
+```cmd
+curl http://localhost:8080/v1/accounts?page=0^&size=10
 ```
 
 **Get Account by Number:**
-```powershell
+```cmd
 curl http://localhost:8080/v1/accounts/ACC001
 ```
 
 **Update Account:**
-```powershell
-curl -X PUT http://localhost:8080/v1/accounts/ACC001 `
-  -H "Content-Type: application/json" `
-  -d '{
-    "accountHolderName": "Jane Doe",
-    "email": "jane@example.com"
-  }'
+```cmd
+curl -X PUT http://localhost:8080/v1/accounts/ACC001 -H "Content-Type: application/json" -d "{\"accountHolderName\": \"Jane Doe\", \"email\": \"jane@example.com\"}"
 ```
 
 **Transfer Funds:**
-```powershell
-curl -X POST http://localhost:8080/v1/accounts/transfer `
-  -H "Content-Type: application/json" `
-  -d '{
-    "fromAccountNumber": "ACC001",
-    "toAccountNumber": "ACC002",
-    "amount": 100.00
-  }'
+```cmd
+curl -X POST http://localhost:8080/v1/accounts/transfer -H "Content-Type: application/json" -d "{\"fromAccountNumber\": \"ACC001\", \"toAccountNumber\": \"ACC002\", \"amount\": 100.00}"
 ```
 
 **Deposit:**
-```powershell
+```cmd
 curl -X POST "http://localhost:8080/v1/accounts/ACC001/deposit?amount=500.00"
 ```
 
 **Withdraw:**
-```powershell
+```cmd
 curl -X POST "http://localhost:8080/v1/accounts/ACC001/withdraw?amount=200.00"
-```
-
-**Delete Account:**
-```powershell
-curl -X DELETE http://localhost:8080/v1/accounts/ACC001
-```
-
-**Health Check:**
-```powershell
-curl http://localhost:8080/v1/accounts/health
 ```
 
 ### Sample Data
@@ -183,7 +153,7 @@ When running with `dev` profile, the application initializes with sample account
 - ACC001 (张三) - Balance: 10,000.00
 - ACC002 (李四) - Balance: 5,000.00
 - ACC003 (王五) - Balance: 2,000.00
-- Additional test accounts (ACC004-ACC011)
+- ..
 
 ## API Endpoints
 
